@@ -1,0 +1,147 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum Role {
+  CLIENT
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  PARTIALLY_PAID
+  PAID
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentMode {
+  FULL
+  INSTALLMENTS
+}
+
+enum PlanStatus {
+  ACTIVE
+  COMPLETED
+  DEFAULTED
+  CANCELLED
+}
+
+enum InstallmentStatus {
+  PENDING
+  PAID
+  LATE
+}
+
+model User {
+  id           String  @id @default(cuid())
+  name         String
+  email        String? @unique
+  phone        String
+  passwordHash String?
+  role         Role    @default(CLIENT)
+  country      String?
+  city         String?
+  address      String?
+  orders       Order[]
+}
+
+model Category {
+  id       String    @id @default(cuid())
+  name     String
+  slug     String    @unique
+  products Product[]
+}
+
+model Product {
+  id          String         @id @default(cuid())
+  name        String
+  slug        String         @unique
+  description String         @db.Text
+  price       Int
+  active      Boolean        @default(true)
+  categoryId  String
+  category    Category       @relation(fields: [categoryId], references: [id])
+  images      ProductImage[]
+  variants    Variant[]
+  createdAt   DateTime       @default(now())
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  position  Int     @default(0)
+}
+
+model Variant {
+  id        String      @id @default(cuid())
+  productId String
+  product   Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  size      String?
+  color     String?
+  stock     Int         @default(0)
+  items     OrderItem[]
+}
+
+model Order {
+  id          String      @id @default(cuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id])
+  items       OrderItem[]
+  status      OrderStatus @default(PENDING)
+  paymentMode PaymentMode @default(FULL)
+  plan        PaymentPlan?
+  currency    String
+  subtotal    Int
+  shippingFee Int         @default(0)
+  total       Int
+  createdAt   DateTime    @default(now())
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  variantId String
+  variant   Variant @relation(fields: [variantId], references: [id])
+  quantity  Int
+  unitPrice Int
+}
+
+model PaymentPlan {
+  id           String        @id @default(cuid())
+  orderId      String        @unique
+  order        Order         @relation(fields: [orderId], references: [id])
+  installments Int
+  depositPct   Int
+  status       PlanStatus    @default(ACTIVE)
+  schedule     Installment[]
+  createdAt    DateTime      @default(now())
+}
+
+model Installment {
+  id         String            @id @default(cuid())
+  planId     String
+  plan       PaymentPlan       @relation(fields: [planId], references: [id], onDelete: Cascade)
+  number     Int
+  amount     Int
+  dueDate    DateTime
+  status     InstallmentStatus @default(PENDING)
+  paidAt     DateTime?
+  paymentRef String?
+}
+
+model ShippingZone {
+  id        String @id @default(cuid())
+  country   String @unique
+  fee       Int
+  delayDays String
+}
