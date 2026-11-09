@@ -65,6 +65,7 @@ model Product {
   slug        String         @unique
   description String         @db.Text
   price       Int
+  weightGrams Int?
   active      Boolean        @default(true)
   categoryId  String
   category    Category       @relation(fields: [categoryId], references: [id])
@@ -102,6 +103,7 @@ model Order {
   currency    String
   subtotal    Int
   shippingFee Int         @default(0)
+  shippingConfirmed Boolean @default(false)
   total       Int
   createdAt   DateTime    @default(now())
 }
@@ -139,9 +141,23 @@ model Installment {
   paymentRef String?
 }
 
+enum ShippingMode {
+  FIXED
+  PER_KG
+  QUOTE
+}
+
 model ShippingZone {
-  id        String @id @default(cuid())
-  country   String @unique
-  fee       Int
-  delayDays String
+  id        String       @id @default(cuid())
+  country   String
+  area      String       @default("")
+  mode      ShippingMode @default(QUOTE)
+  fee       Int?
+  isMinimum Boolean      @default(false)
+  perKgFee  Int?
+  agency    String?
+  delayDays String?
+  active    Boolean      @default(true)
+
+  @@unique([country, area])
 }
