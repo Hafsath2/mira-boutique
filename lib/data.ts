@@ -30,3 +30,12 @@ export async function getProduct(slug: string) {
     include: { category: true, variants: true, images: { orderBy: { position: "asc" } } },
   });
 }
+
+export async function getShippingZones() {
+  "use cache";
+  cacheLife("minutes");
+  return prisma.shippingZone.findMany({
+    where: { active: true },
+    orderBy: [{ country: "asc" }, { area: "asc" }],
+  });
+}

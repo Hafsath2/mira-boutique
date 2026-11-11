@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCategoryWithProducts } from "@/lib/data";
+import { PLAN_RULES } from "@/lib/echeances";
 import { formatPrice } from "@/lib/site";
 
 export default function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -31,9 +32,11 @@ async function CategoryContent({ params }: { params: Promise<{ slug: string }> }
                 <div className="font-semibold group-hover:text-[#D6006F]">{p.name}</div>
                 <div>{formatPrice(p.price)}</div>
               </div>
-              <span className="self-start rounded-full bg-[#D6006F] px-3 py-1 text-sm font-semibold text-white">
-                ou 3 × {formatPrice(Math.ceil(p.price / 3))}
-              </span>
+              {p.price >= PLAN_RULES.minTotal && (
+                <span className="self-start rounded-full bg-[#D6006F] px-3 py-1 text-sm font-semibold text-white">
+                  ou {PLAN_RULES.parts} × {formatPrice(Math.floor(p.price / PLAN_RULES.parts))}
+                </span>
+              )}
             </Link>
           ))}
         </div>

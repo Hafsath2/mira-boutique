@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { getCategories } from "@/lib/data";
+import CartLink from "./CartLink";
 
 export default async function SiteHeader() {
   const categories = await getCategories();
@@ -21,9 +22,7 @@ export default async function SiteHeader() {
             </Link>
           ))}
         </nav>
-        <button className="min-h-11 rounded-full border-2 border-[#111111] px-5 font-semibold">
-          Panier (0)
-        </button>
+        <CartLink />
       </header>
     </>
   );
