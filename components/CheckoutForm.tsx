@@ -7,7 +7,7 @@ import { useCart } from "./CartProvider";
 import { PLAN_RULES, buildSchedule } from "@/lib/echeances";
 import { computeShipping } from "@/lib/shipping";
 import { formatPrice } from "@/lib/site";
-import { placeOrder } from "@/app/commande/actions";
+import { placeOrder } from "@/app/(shop)/commande/actions";
 
 type Zone = {
   country: string;
@@ -18,8 +18,12 @@ type Zone = {
   isMinimum: boolean;
 };
 
-const dateFmt = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long" });
-const input = "min-h-12 w-full rounded-lg border-2 border-[#111111] bg-white px-3";
+const dateFmt = new Intl.DateTimeFormat("fr-FR", {
+  day: "numeric",
+  month: "long",
+});
+const input =
+  "min-h-12 w-full rounded-lg border-2 border-[#111111] bg-white px-3";
 
 export default function CheckoutForm({ zones }: { zones: Zone[] }) {
   const { items, ready, subtotal, clear } = useCart();
@@ -29,10 +33,14 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
 
   const countries = useMemo(() => {
     const list = [...new Set(zones.map((z) => z.country))];
-    return list.sort((a, b) => (a === "Bénin" ? -1 : b === "Bénin" ? 1 : a.localeCompare(b, "fr")));
+    return list.sort((a, b) =>
+      a === "Bénin" ? -1 : b === "Bénin" ? 1 : a.localeCompare(b, "fr"),
+    );
   }, [zones]);
 
-  const [country, setCountry] = useState(countries.includes("Bénin") ? "Bénin" : (countries[0] ?? ""));
+  const [country, setCountry] = useState(
+    countries.includes("Bénin") ? "Bénin" : (countries[0] ?? ""),
+  );
   const [area, setArea] = useState("");
   const [mode, setMode] = useState<"FULL" | "INSTALLMENTS">("FULL");
 
@@ -41,8 +49,13 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
   if (items.length === 0) {
     return (
       <div className="mx-auto max-w-xl px-6 py-20 text-center">
-        <h1 className="mb-3 font-serif text-4xl font-semibold">Votre panier est vide</h1>
-        <Link href="/" className="inline-block rounded-full bg-[#D6006F] px-7 py-3 font-semibold text-white">
+        <h1 className="mb-3 font-serif text-4xl font-semibold">
+          Votre panier est vide
+        </h1>
+        <Link
+          href="/"
+          className="inline-block rounded-full bg-[#D6006F] px-7 py-3 font-semibold text-white"
+        >
           Voir la collection
         </Link>
       </div>
@@ -50,7 +63,9 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
   }
 
   const areas = zones.filter((z) => z.country === country && z.area !== "");
-  const zone = zones.find((z) => z.country === country && z.area === (areas.length > 0 ? area : ""));
+  const zone = zones.find(
+    (z) => z.country === country && z.area === (areas.length > 0 ? area : ""),
+  );
   const shipping = zone ? computeShipping(zone, null) : null;
   const eligible = subtotal >= PLAN_RULES.minTotal;
   const choice = eligible ? mode : "FULL";
@@ -68,7 +83,10 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
       area: areas.length > 0 ? area : "",
       address: String(f.get("address") ?? ""),
       mode: choice,
-      items: items.map((i) => ({ variantId: i.variantId, quantity: i.quantity })),
+      items: items.map((i) => ({
+        variantId: i.variantId,
+        quantity: i.quantity,
+      })),
     };
     startTransition(async () => {
       const res = await placeOrder(payload);
@@ -82,7 +100,10 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
   }
 
   return (
-    <form onSubmit={onSubmit} className="mx-auto grid max-w-6xl gap-12 px-6 py-10 md:grid-cols-[1fr_380px]">
+    <form
+      onSubmit={onSubmit}
+      className="mx-auto grid max-w-6xl gap-12 px-6 py-10 md:grid-cols-[1fr_380px]"
+    >
       <section className="flex flex-col gap-4">
         <h1 className="font-serif text-5xl font-semibold">Votre commande</h1>
 
@@ -92,7 +113,14 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
         </label>
         <label className="flex flex-col gap-1 font-medium">
           Numéro WhatsApp
-          <input name="phone" type="tel" required autoComplete="tel" placeholder="+229 ..." className={input} />
+          <input
+            name="phone"
+            type="tel"
+            required
+            autoComplete="tel"
+            placeholder="+229 ..."
+            className={input}
+          />
         </label>
         <label className="flex flex-col gap-1 font-medium">
           Pays
@@ -114,7 +142,12 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
         {areas.length > 0 && (
           <label className="flex flex-col gap-1 font-medium">
             Zone de livraison
-            <select value={area} onChange={(e) => setArea(e.target.value)} required className={input}>
+            <select
+              value={area}
+              onChange={(e) => setArea(e.target.value)}
+              required
+              className={input}
+            >
               <option value="">Choisissez votre zone</option>
               {areas.map((z) => (
                 <option key={z.area} value={z.area}>
@@ -126,7 +159,12 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
         )}
         <label className="flex flex-col gap-1 font-medium">
           Adresse ou point de repère
-          <textarea name="address" required rows={3} className="w-full rounded-lg border-2 border-[#111111] p-3" />
+          <textarea
+            name="address"
+            required
+            rows={3}
+            className="w-full rounded-lg border-2 border-[#111111] p-3"
+          />
         </label>
       </section>
 
@@ -134,12 +172,19 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
         <fieldset className="flex flex-col gap-2">
           <legend className="mb-2 font-semibold">Mode de paiement</legend>
           <label className="flex items-center gap-3 rounded-lg border-2 border-[#EAD3DF] p-3">
-            <input type="radio" name="mode" checked={choice === "FULL"} onChange={() => setMode("FULL")} />
+            <input
+              type="radio"
+              name="mode"
+              checked={choice === "FULL"}
+              onChange={() => setMode("FULL")}
+            />
             Payer en une fois
           </label>
           <label
             className={`flex items-center gap-3 rounded-lg border-2 p-3 ${
-              eligible ? "border-[#D6006F] bg-[#FFF7FB]" : "border-[#EAD3DF] opacity-50"
+              eligible
+                ? "border-[#D6006F] bg-[#FFF7FB]"
+                : "border-[#EAD3DF] opacity-50"
             }`}
           >
             <input
@@ -157,7 +202,9 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
           <ul className="flex flex-col gap-1 text-[15px]">
             {schedule.map((l) => (
               <li key={l.number} className="flex justify-between">
-                <span>{l.number === 0 ? "À la commande" : dateFmt.format(l.dueDate)}</span>
+                <span>
+                  {l.number === 0 ? "À la commande" : dateFmt.format(l.dueDate)}
+                </span>
                 <strong>{formatPrice(l.amount)}</strong>
               </li>
             ))}
@@ -187,8 +234,9 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
 
         {choice === "INSTALLMENTS" && (
           <p className="text-sm">
-            L’échéancier porte sur les articles. La livraison se règle à part, une fois son prix confirmé.
-            Votre commande est livrée après le dernier paiement.
+            L’échéancier porte sur les articles. La livraison se règle à part,
+            une fois son prix confirmé. Votre commande est livrée après le
+            dernier paiement.
           </p>
         )}
 

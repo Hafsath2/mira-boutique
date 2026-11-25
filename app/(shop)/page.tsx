@@ -1,10 +1,24 @@
 import Link from "next/link";
 import { getCategories } from "@/lib/data";
 import { whatsappLink } from "@/lib/site";
+import HeroCarousel, { type Slide } from "@/components/HeroCarousel";
+
+const heroSlides: Slide[] = [
+  { src: "/hero/1.jpeg", alt: "Collection Mira Boutique, photo 1" },
+  {
+    type: "video",
+    src: "/hero/video1.mp4",
+    alt: "Présentation de la collection Mira Boutique",
+  },
+  { src: "/hero/2.jpeg", alt: "Collection Mira Boutique, photo 2" },
+  { src: "/hero/3.jpeg", alt: "Collection Mira Boutique, photo 3" },
+];
 
 export default async function Home() {
   const categories = await getCategories();
-  const wa = whatsappLink("Bonjour Mira Boutique, je souhaite passer commande.");
+  const wa = whatsappLink(
+    "Bonjour Mira Boutique, je souhaite passer commande.",
+  );
 
   return (
     <main>
@@ -14,24 +28,33 @@ export default async function Home() {
             Élégance pudique, livrée chez vous
           </h1>
           <p className="max-w-md text-lg leading-relaxed">
-            Abayas, hijabs, voiles et accessoires choisis avec soin. Commandez en ligne ou directement sur WhatsApp.
+            Abayas, hijabs, voiles et accessoires choisis avec soin. Commandez
+            en ligne ou directement sur WhatsApp.
           </p>
           <div className="flex flex-wrap gap-3">
-            <a href="#categories" className="min-h-12 rounded-full bg-[#D6006F] px-7 py-3 font-semibold text-white">
+            <a
+              href="#categories"
+              className="min-h-12 rounded-full bg-[#D6006F] px-7 py-3 font-semibold text-white"
+            >
               Voir la collection
             </a>
-            <a href={wa} className="min-h-12 rounded-full bg-[#1F6B4F] px-7 py-3 font-semibold text-white">
+            <a
+              href={wa}
+              className="min-h-12 rounded-full bg-[#1F6B4F] px-7 py-3 font-semibold text-white"
+            >
               Commander sur WhatsApp
             </a>
           </div>
         </div>
-        <div className="flex h-96 items-center justify-center rounded-2xl bg-[#FFE3F1] text-center text-sm">
-          [PHOTO PRINCIPALE : à ajouter]
+        <div className="order-first md:order-last">
+          <HeroCarousel slides={heroSlides} />
         </div>
       </section>
 
       <section id="categories" className="mx-auto max-w-6xl px-6 pb-16">
-        <h2 className="mb-6 font-serif text-4xl font-semibold">Nos catégories</h2>
+        <h2 className="mb-6 font-serif text-4xl font-semibold">
+          Nos catégories
+        </h2>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {categories.map((c) => (
             <Link
@@ -39,7 +62,9 @@ export default async function Home() {
               href={`/categories/${c.slug}`}
               className="group flex h-56 items-end rounded-2xl bg-[#FFE3F1] p-5 transition hover:bg-[#FFD0E8]"
             >
-              <span className="text-xl font-semibold group-hover:text-[#D6006F]">{c.name}</span>
+              <span className="text-xl font-semibold group-hover:text-[#D6006F]">
+                {c.name}
+              </span>
             </Link>
           ))}
         </div>
